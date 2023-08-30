@@ -1,0 +1,19 @@
+import { IMessage } from '@interfaces/message.interface'
+import { Schema, model } from 'mongoose'
+
+const MessageSchema = new Schema<IMessage>({
+    chat: {
+        type: String,
+        index: true,
+    },
+    user: String,
+    message: String,
+    seen: Boolean,
+    createdAt: {
+        type: Date,
+        default: Date.now
+    }
+})
+
+const MessageModel = model<IMessage>('messages_cb', MessageSchema)
+export { MessageModel }

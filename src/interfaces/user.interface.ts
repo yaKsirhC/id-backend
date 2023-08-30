@@ -1,0 +1,18 @@
+export type IUser = {
+    _id: string,
+    identifier: string,
+    token: string,
+    admin: boolean,
+    balance: number,
+    name: string,
+    verified: boolean,
+    verifyAgain: boolean,
+    verifying: boolean,
+    lastVerified: number,
+    verifiedAmount: number,
+    email: string,
+    account_username: string,
+    account_password: string,
+    account_streamKey: string,
+    createdAt: Date,
+}

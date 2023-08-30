@@ -1,0 +1,41 @@
+{
+    "compilerOptions": {
+        "declaration": true,
+        "module": "CommonJS",
+        "target": "ES2017",
+        "moduleResolution": "node",
+        "noImplicitReturns": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "esModuleInterop": true,
+        "outDir": "lib",
+        "strict": true,
+        "isolatedModules": true,
+        "forceConsistentCasingInFileNames": true,
+        "strictPropertyInitialization": false,
+        "skipLibCheck": true,
+        "noPropertyAccessFromIndexSignature": false,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "paths": {
+            "@interfaces/*": [
+                "./src/interfaces/*"
+            ],
+            "@schemas/*": [
+                "./src/schemas/*"
+            ],
+            "@middlewares/*": [
+                "./src/middlewares/*"
+            ],
+            "@utils/*": [
+                "./src/utils/*"
+            ],
+            "@routes/*": [
+                "./src/routes/*"
+            ],
+            "@controllers/*": [
+                "./src/controllers/*"
+            ]
+        }
+    }
+}
