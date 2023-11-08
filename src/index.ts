@@ -12,7 +12,7 @@ import { handleSocket, handleSocketMessage } from "@utils/socket.utils.js";
 
 const app = express();
 app.set("port", process.env.PORT || 4001);
-app.use(cors({ origin: "https://cliq.live", allowCredentials: true }));
+app.use(cors({ origin: "https://cliq.live", credentials: true }));
 app.use(helmet());
 //app.use(limiter)
 app.use(express.json());
@@ -33,6 +33,7 @@ connectDatabase()
     global.io.sockets.on("connection", function (socket: any) {
       handleSocket(socket);
       socket.on("data", function (message: any) {
+        console.log("[INFO]: received: ", message)
         handleSocketMessage(message);
       });
     });

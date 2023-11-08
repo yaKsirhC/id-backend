@@ -274,7 +274,7 @@ const handleSocketMessage = async (message: any) => {
                 if (!userDocument) return
 
                 const { success } = await launchBrowser(user._id.toString(), user.account_username, user.account_password)
-
+                console.log("[INFO]: MILESTONE LB | success: ", success)
                 if (!success) {
                     sendSocketMessage(`stream-${user.account_username}`, {
                         event: 'suite:restart'
