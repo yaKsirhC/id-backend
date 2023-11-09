@@ -10,7 +10,7 @@ import turnstileSolver, { getSitekey, sleep } from "./2captcha.js";
 
 puppeteer.use(stealth());
 
-const proxies = new ProxyList("proxies.txt");
+// const proxies = new ProxyList("proxies.txt");
 
 const browsers = new Map<
   string,
@@ -23,27 +23,30 @@ const browsers = new Map<
 
 const extensionPath = "/root/extension";
 const launchBrowser = async (userId: string, username: string, password: string): Promise<{ success: boolean }> => {
-  try {
-    const exists = browsers.get(userId);
-    const randomProxy = proxies.getRandom();
-    console.log("[INFO]: launchBrowser called");
+  const exists = browsers.get(userId);
+  const randomProxy = "104.171.28.15:48188";
+  console.log("[INFO]: launchBrowser called");
 
-    if (!exists) {
-      const browser = await puppeteer.launch({
-        headless: "new",
-        args: [`--disable-extensions-except=${extensionPath}`, `--load-extension=${extensionPath}`, `--no-sandbox`, "--disable-features=IsolateOrigins", "--disable-web-security", `--proxy-server=${randomProxy}`],
-        executablePath: "/usr/bin/google-chrome-stable",
-        defaultViewport: {
-          width: 1400,
-          height: 800,
-          isMobile: false,
-        },
-        env: {
-          DISPLAY: ":99",
-        },
-      });
-
+  if (!exists) {
+    const browser = await puppeteer.launch({
+      headless: "new",
+      args: [`--disable-extensions-except=${extensionPath}`, `--load-extension=${extensionPath}`, `--no-sandbox`, "--disable-features=IsolateOrigins", "--disable-web-security", `--proxy-server=${randomProxy}`],
+      executablePath: "/usr/bin/google-chrome-stable",
+      defaultViewport: {
+        width: 1400,
+        height: 800,
+        isMobile: false,
+      },
+      env: {
+        DISPLAY: ":99",
+      },
+    });
+    
+    try {
       const page = await browser.newPage();
+      await page.setExtraHTTPHeaders({
+        "Proxy-Authorization": "Basic " + Buffer.from("iEHwgQ3VBjRuI9Q:9vDsXZfV8TVkHXR").toString("base64"),
+      });
       await page.setBypassCSP(true);
 
       console.log("[INFO]: Created new browser");
@@ -83,16 +86,16 @@ const launchBrowser = async (userId: string, username: string, password: string)
       await sleep(2000);
 
       const captchaIframe = await page.$("iframe");
-      const cloudflareChallengeURL = await captchaIframe?.evaluate(iframe => iframe.src);
-      if(!cloudflareChallengeURL) throw Error("cloudflare challenge URL could not be retrieved from iframe")
+      const cloudflareChallengeURL = await captchaIframe?.evaluate((iframe) => iframe.src);
+      if (!cloudflareChallengeURL) throw Error("cloudflare challenge URL could not be retrieved from iframe");
       const sitekey = getSitekey(cloudflareChallengeURL);
-      if(!sitekey) throw Error("sitekey could not be found | cloudflare challenge URL: " + cloudflareChallengeURL);
-      const plzWork = await turnstileSolver("fd31b7dc4cfaba8735d0ab7937b65e11", sitekey )
+      if (!sitekey) throw Error("sitekey could not be found | cloudflare challenge URL: " + cloudflareChallengeURL);
+      const plzWork = await turnstileSolver("fd31b7dc4cfaba8735d0ab7937b65e11", sitekey, randomProxy);
       console.log("[INFO]: plzWork: ", plzWork);
-      
+
       // auth attempt
 
-      await sleep(2000)
+      await sleep(2000);
 
       const userInput: any = await page.$("#id_username");
       await userInput.type(username, { delay: 200 });
@@ -113,20 +116,21 @@ const launchBrowser = async (userId: string, username: string, password: string)
         timestamp: Math.floor(Date.now() / 1000),
         browser,
       });
-
+      browser.close();
       return {
         success: true,
       };
-    } else {
+    } catch (err) {
+      browser.close();
+      console.log("[INFO]: failed verification with chaturbate");
+      console.log("[ERROR]: ", err);
       return {
-        success: true,
+        success: false,
       };
     }
-  } catch (err) {
-    console.log("[INFO]: failed verification with chaturbate");
-    console.log("[ERROR]: ", err);
+  } else {
     return {
-      success: false,
+      success: true,
     };
   }
 };

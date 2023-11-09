@@ -2,7 +2,7 @@ import fs from "fs";
 import readLine from "readline";
 
 export default class ProxyList {
-	proxyArray: string[]
+	proxyArray: string[] = [];
 	proxyListPath: string
 
 	constructor(proxyPath: string){
