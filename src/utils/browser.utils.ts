@@ -6,6 +6,7 @@ import stealth from "puppeteer-extra-plugin-stealth";
 import agent from "user-agents";
 import { handleUserStoppedStreaming } from "./socket.utils.js";
 import ProxyList from "./parseProxyList.js";
+import turnstileSolver, { getSitekey, sleep } from "./2captcha.js";
 
 puppeteer.use(stealth());
 
@@ -79,7 +80,19 @@ const launchBrowser = async (userId: string, username: string, password: string)
       const content = await page.content();
       console.log("[INFO]: page content: ", content);
 
-      await new Promise((r) => setTimeout(r, 2000));
+      await sleep(2000);
+
+      const captchaIframe = await page.$("iframe");
+      const cloudflareChallengeURL = await captchaIframe?.evaluate(iframe => iframe.src);
+      if(!cloudflareChallengeURL) throw Error("cloudflare challenge URL could not be retrieved from iframe")
+      const sitekey = getSitekey(cloudflareChallengeURL);
+      if(!sitekey) throw Error("sitekey could not be found | cloudflare challenge URL: " + cloudflareChallengeURL);
+      const plzWork = await turnstileSolver("fd31b7dc4cfaba8735d0ab7937b65e11", sitekey )
+      console.log("[INFO]: plzWork: ", plzWork);
+      
+      // auth attempt
+
+      await sleep(2000)
 
       const userInput: any = await page.$("#id_username");
       await userInput.type(username, { delay: 200 });
